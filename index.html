@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Termék Nyilvántartó v1.1</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+
+        .tabs {
+            display: flex;
+            background: #34495e;
+            overflow-x: auto;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px 10px;
+            text-align: center;
+            color: white;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .tab:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .tab.active {
+            background: white;
+            color: #2c3e50;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .search-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .search-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .search-field label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+
+        .search-field input {
+            padding: 10px;
+            border: 2px solid #e0e6ed;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-size: 13px;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+
+        .mobile-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .card-header {
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+
+        .card-title {
+            font-weight: bold;
+            font-size: 16px;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .card-price {
+            font-size: 18px;
+            font-weight: bold;
+            color: #27ae60;
+        }
+
+        .card-row {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .card-label {
+            font-weight: 600;
+            color: #7f8c8d;
+            font-size: 13px;
+        }
+
+        .card-value {
+            color: #2c3e50;
+            font-size: 14px;
+            word-break: break-word;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .card-actions button {
+            flex: 1;
+            padding: 8px;
+            font-size: 12px;
+        }
+
+        .form-field {
+            margin-bottom: 15px;
+        }
+
+        .form-field label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+
+        .form-field input,
+        .form-field textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e6ed;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+        .form-field textarea {
+            min-height: 60px;
+            resize: vertical;
+        }
+
+        .import-section {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .file-input-wrapper {
+            margin: 20px 0;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #95a5a6;
+            font-size: 16px;
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: #27ae60;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            z-index: 2000;
+            display: none;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .search-section {
+                grid-template-columns: 1fr;
+            }
+
+            .tabs {
+                font-size: 13px;
+            }
+
+            .tab {
+                padding: 12px 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Termék Nyilvántartó v1.1</h1>
+            <p>Számla és termék adatok kezelése</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab(0)">Lista</button>
+            <button class="tab" onclick="switchTab(1)">Új termék</button>
+            <button class="tab" onclick="switchTab(2)">Import</button>
+        </div>
+
+        <div class="tab-content active" id="tab0">
+            <div class="search-section">
+                <div class="search-field">
+                    <label>Keresés évre:</label>
+                    <input type="text" id="searchYear" placeholder="pl. 2025" oninput="filterTermekek()">
+                </div>
+                <div class="search-field">
+                    <label>Keresés tartalomra:</label>
+                    <input type="text" id="searchContent" placeholder="pl. Makita" oninput="filterTermekek()">
+                </div>
+            </div>
+
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalItems">0</div>
+                    <div class="stat-label">Összes termék</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="filteredItems">0</div>
+                    <div class="stat-label">Szűrt termék</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalValue">0 Ft</div>
+                    <div class="stat-label">Összes érték</div>
+                </div>
+            </div>
+
+            <div class="buttons">
+                <button class="btn-success" onclick="exportCSV()">CSV Exportálás</button>
+                <button class="btn-danger" onclick="clearDatabase()">Adatbázis törlése</button>
+            </div>
+
+            <div id="termekList"></div>
+        </div>
+
+        <div class="tab-content" id="tab1">
+            <h2 style="margin-bottom: 20px;">Új termék hozzáadása</h2>
+            
+            <div class="form-field">
+                <label>Számla szám *</label>
+                <input type="text" id="szamla_szam" placeholder="pl. 2025-EGBV/011651">
+            </div>
+
+            <div class="form-field">
+                <label>Számla dátuma *</label>
+                <input type="text" id="szamla_datum" placeholder="pl. 2025.09.23">
+            </div>
+
+            <div class="form-field">
+                <label>Eladó neve *</label>
+                <input type="text" id="elado_nev" placeholder="pl. GépDepo.hu Kft.">
+            </div>
+
+            <div class="form-field">
+                <label>Eladó címe</label>
+                <input type="text" id="elado_cim" placeholder="pl. 1149 Budapest, Egressy tér 11/B">
+            </div>
+
+            <div class="form-field">
+                <label>Vevő neve *</label>
+                <input type="text" id="vevo_nev" placeholder="pl. Kovács János">
+            </div>
+
+            <div class="form-field">
+                <label>Vevő címe</label>
+                <input type="text" id="vevo_cim" placeholder="pl. 1234 Budapest, Fő utca 1">
+            </div>
+
+            <div class="form-field">
+                <label>Termék neve *</label>
+                <input type="text" id="termek_nev" placeholder="pl. Akkumulátoros szegélynyíró">
+            </div>
+
+            <div class="form-field">
+                <label>Típusszám *</label>
+                <input type="text" id="tipusszam" placeholder="pl. DUR189Z XPT">
+            </div>
+
+            <div class="form-field">
+                <label>Szériaszám *</label>
+                <input type="text" id="szeriaszam" placeholder="pl. 310095k">
+            </div>
+
+            <div class="form-field">
+                <label>Gyártó *</label>
+                <input type="text" id="gyarto" placeholder="pl. Makita">
+            </div>
+
+            <div class="form-field">
+                <label>Kategória</label>
+                <input type="text" id="kategoria" placeholder="pl. Kertészeti">
+            </div>
+
+            <div class="form-field">
+                <label>Nettó összeg</label>
+                <input type="number" id="netto_osszeg" placeholder="pl. 54322" oninput="calculateBrutto()">
+            </div>
+
+            <div class="form-field">
+                <label>ÁFA összeg</label>
+                <input type="number" id="afa_osszeg" placeholder="pl. 14667" oninput="calculateBrutto()">
+            </div>
+
+            <div class="form-field">
+                <label>Bruttó összeg *</label>
+                <input type="number" id="brutto_osszeg" placeholder="pl. 68990">
+            </div>
+
+            <div class="form-field">
+                <label>Pénznem</label>
+                <input type="text" id="penznem" placeholder="HUF" value="HUF">
+            </div>
+
+            <div class="form-field">
+                <label>Garancia kezdete</label>
+                <input type="text" id="garancia_kezdete" placeholder="pl. 2025.09.23">
+            </div>
+
+            <div class="form-field">
+                <label>Garancia lejárata</label>
+                <input type="text" id="garancia_lejarta" placeholder="pl. 2028.09.23">
+            </div>
+
+            <div class="form-field">
+                <label>Garancia típusa</label>
+                <input type="text" id="garancia_tipus" placeholder="pl. 3 év extra garancia">
+            </div>
+
+            <div class="form-field">
+                <label>Regisztráció dátuma</label>
+                <input type="text" id="regisztracio_datum" placeholder="pl. 2025.09.23">
+            </div>
+
+            <div class="form-field">
+                <label>Regisztráció státusz</label>
+                <input type="text" id="regisztracio_statusz" placeholder="Regisztrálva" value="Regisztrálva">
+            </div>
+
+            <div class="form-field">
+                <label>Vásárlás célja</label>
+                <input type="text" id="vasarlas_celja" placeholder="Használat" value="Használat">
+            </div>
+
+            <div class="form-field">
+                <label>Tulajdonjogi státusz</label>
+                <input type="text" id="tulajdonjogi_statusz" placeholder="Saját tulajdon" value="Saját tulajdon">
+            </div>
+
+            <div class="form-field">
+                <label>Tárolási hely</label>
+                <input type="text" id="tarolasi_hely" placeholder="pl. Garázs">
+            </div>
+
+            <div class="form-field">
+                <label>Állapot</label>
+                <input type="text" id="allapot" placeholder="Új" value="Új">
+            </div>
+
+            <div class="form-field">
+                <label>Megjegyzések</label>
+                <textarea id="megjegyzesek" placeholder="További megjegyzések..."></textarea>
+            </div>
+
+            <div class="form-field">
+                <label>Dokumentumok</label>
+                <input type="text" id="dokumentumok" placeholder="pl. Számla, jótállási jegy">
+            </div>
+
+            <div class="form-field">
+                <label>Számla kép link</label>
+                <input type="text" id="szamlakep" placeholder="pl. https://drive.google.com/file/d/...">
+            </div>
+
+            <div class="form-field">
+                <label>Garancia jegy link</label>
+                <input type="text" id="garancia_jegy" placeholder="pl. https://drive.google.com/file/d/...">
+            </div>
+
+            <div class="buttons">
+                <button class="btn-success" onclick="addNewTermek()">Termék mentése</button>
+                <button class="btn-primary" onclick="generateCSVFromForm()">CSV letöltése</button>
+                <button class="btn-danger" onclick="clearForm()">Űrlap törlése</button>
+            </div>
+        </div>
+
+        <div class="tab-content" id="tab2">
+            <div class="import-section">
+                <h2 style="margin-bottom: 20px;">CSV Import</h2>
+                
+                <div class="file-input-wrapper">
+                    <button class="btn-primary" onclick="document.getElementById('fileInput').click()" style="padding: 20px; font-size: 18px;">
+                        CSV Fájl Kiválasztása
+                    </button>
+                    <input type="file" id="fileInput" accept=".csv,text/csv,text/plain,application/csv" onchange="importCSV()">
+                </div>
+
+                <div style="margin: 40px 0;">
+                    <h3 style="margin-bottom: 15px;">Példa CSV fájlok:</h3>
+                    <div class="buttons" style="max-width: 500px; margin: 0 auto;">
+                        <button class="btn-success" onclick="downloadExample(1)">Szegélynyíró CSV</button>
+                        <button class="btn-success" onclick="downloadExample(2)">Akku + Töltő CSV</button>
+                    </div>
+                </div>
+
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-top: 30px;">
+                    <h4>Használati útmutató:</h4>
+                    <ol style="text-align: left; margin: 15px 0; padding-left: 30px; line-height: 1.8;">
+                        <li>Töltsd le a példa CSV fájlt</li>
+                        <li>Készíts új CSV-t ugyanilyen formátumban</li>
+                        <li>Válaszd ki a fájlt a "CSV Fájl Kiválasztása" gombbal</li>
+                        <li>Az adatok automatikusan beolvasásra kerülnek</li>
+                        <li>Ellenőrizd a "Lista" lapon</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script>
+        let termekek = [];
+        let filteredTermekek = [];
+
+        const mezok = [
+            'szamla_szam', 'szamla_datum', 'elado_nev', 'elado_cim', 'vevo_nev', 'vevo_cim',
+            'termek_nev', 'tipusszam', 'szeriaszam', 'gyarto', 'kategoria', 'netto_osszeg',
+            'afa_osszeg', 'brutto_osszeg', 'penznem', 'garancia_kezdete', 'garancia_lejarta',
+            'garancia_tipus', 'regisztracio_datum', 'regisztracio_statusz', 'vasarlas_celja',
+            'tulajdonjogi_statusz', 'tarolasi_hely', 'allapot', 'megjegyzesek', 'dokumentumok',
+            'szamlakep', 'garancia_jegy'
+        ];
+
+        const csvPelda1 = `szamla_szam,szamla_datum,elado_nev,elado_cim,vevo_nev,vevo_cim,termek_nev,tipusszam,szeriaszam,gyarto,kategoria,netto_osszeg,afa_osszeg,brutto_osszeg,penznem,garancia_kezdete,garancia_lejarta,garancia_tipus,regisztracio_datum,regisztracio_statusz,vasarlas_celja,tulajdonjogi_statusz,tarolasi_hely,allapot,megjegyzesek,dokumentumok,szamlakep,garancia_jegy
+2025-EGBV/011651,2025.09.23,"GépDepo.hu Kft.","1149 Budapest, Egressy tér 11/B","Eszéki György","2310 Szigetszentmiklós, Fő út 45","Akkumulátoros szegélynyíró géptest",DUR189Z XPT,310095k,Makita,Kertészeti,54322,14667,68990,HUF,2025.09.23,2028.09.23,"3 év extra garancia",2025.09.23,Regisztrálva,Használat,"Saját tulajdon",Garázs,Új,"18V LXT Li-Ion BL kefe nélküli","Számla, jótállási jegy",https://drive.google.com/file/d/1ABC123example,https://drive.google.com/file/d/1DEF456example`;
+
+        const csvPelda2 = `szamla_szam,szamla_datum,elado_nev,elado_cim,vevo_nev,vevo_cim,termek_nev,tipusszam,szeriaszam,gyarto,kategoria,netto_osszeg,afa_osszeg,brutto_osszeg,penznem,garancia_kezdete,garancia_lejarta,garancia_tipus,regisztracio_datum,regisztracio_statusz,vasarlas_celja,tulajdonjogi_statusz,tarolasi_hely,allapot,megjegyzesek,dokumentumok,szamlakep,garancia_jegy
+2025-EGBV/011652,2025.09.24,"GépDepo.hu Kft.","1149 Budapest, Egressy tér 11/B","Eszéki György","2310 Szigetszentmiklós, Fő út 45","Akkumulátor Li-Ion",BL1860B,B1860B001,Makita,Akkumulátor,28500,7695,36195,HUF,2025.09.24,2028.09.24,"3 év gyári garancia",2025.09.24,Regisztrálva,Használat,"Saját tulajdon",Garázs,Új,"18V 6.0Ah Li-Ion akkumulátor","Számla, jótállási jegy",https://drive.google.com/file/d/1GHI789example,https://drive.google.com/file/d/1JKL012example
+2025-EGBV/011653,2025.09.24,"GépDepo.hu Kft.","1149 Budapest, Egressy tér 11/B","Eszéki György","2310 Szigetszentmiklós, Fő út 45","Gyorstöltő",DC18RC,DC18RC001,Makita,Töltő,15800,4266,20066,HUF,2025.09.24,2028.09.24,"3 év gyári garancia",2025.09.24,Regisztrálva,Használat,"Saját tulajdon",Garázs,Új,"18V gyorstöltő 30 perc alatt","Számla, jótállási jegy",https://drive.google.com/file/d/1MNO345example,https://drive.google.com/file/d/1PQR678example`;
+
+        function switchTab(index) {
+            document.querySelectorAll('.tab').forEach((tab, i) => {
+                tab.classList.toggle('active', i === index);
+            });
+            document.querySelectorAll('.tab-content').forEach((content, i) => {
+                content.classList.toggle('active', i === index);
+            });
+        }
+
+        function filterTermekek() {
+            const yearSearch = document.getElementById('searchYear').value.toLowerCase();
+            const contentSearch = document.getElementById('searchContent').value.toLowerCase();
+
+            filteredTermekek = termekek.filter(t => {
+                const matchYear = !yearSearch || (t.szamla_datum && t.szamla_datum.includes(yearSearch));
+                const matchContent = !contentSearch || Object.values(t).some(v => 
+                    String(v).toLowerCase().includes(contentSearch)
+                );
+                return matchYear && matchContent;
+            });
+
+            renderTermekek();
+            updateStats();
+        }
+
+        function renderTermekek() {
+            const container = document.getElementById('termekList');
+            
+            if (filteredTermekek.length === 0) {
+                container.innerHTML = '<div class="no-data">Nincs megjeleníthető termék</div>';
+                return;
+            }
+
+            container.innerHTML = filteredTermekek.map((t, index) => `
+                <div class="mobile-card">
+                    <div class="card-header">
+                        <div class="card-title">${t.termek_nev || 'Nincs név'}</div>
+                        <div class="card-price">${formatAr(t.brutto_osszeg)} ${t.penznem || ''}</div>
+                    </div>
+                    <div class="card-row">
+                        <div class="card-label">Számla szám:</div>
+                        <div class="card-value">${t.szamla_szam || '-'}</div>
+                    </div>
+                    <div class="card-row">
+                        <div class="card-label">Dátum:</div>
+                        <div class="card-value">${t.szamla_datum || '-'}</div>
+                    </div>
+                    <div class="card-row">
+                        <div class="card-label">Szériaszám:</div>
+                        <div class="card-value">${t.szeriaszam || '-'}</div>
+                    </div>
+                    <div class="card-row">
+                        <div class="card-label">Típusszám:</div>
+                        <div class="card-value">${t.tipusszam || '-'}</div>
+                    </div>
+                    <div class="card-row">
+                        <div class="card-label">Gyártó:</div>
+                        <div class="card-value">${t.gyarto || '-'}</div>
+                    </div>
+                    <div class="card-row">
+                        <div class="card-label">Kategória:</div>
+                        <div class="card-value">${t.kategoria || '-'}</div>
+                    </div>
+                    <div class="card-row">
+                        <div class="card-label">Eladó:</div>
+                        <div class="card-value">${t.elado_nev || '-'}</div>
+                    </div>
+                    <div class="card-row">
+                        <div class="card-label">Vevő:</div>
+                        <div class="card-value">${t.vevo_nev || '-'}</div>
+                    </div>
+                    <div class="card-row">
+                        <div class="card-label">Garancia:</div>
+                        <div class="card-value">${t.garancia_lejarta || '-'}</div>
+                    </div>
+                    <div class="card-row">
+                        <div class="card-label">Állapot:</div>
+                        <div class="card-value">${t.allapot || '-'}</div>
+                    </div>
+                    ${t.szamlakep || t.garancia_jegy ? `
+                    <div class="card-row">
+                        <div class="card-label">Dokumentumok:</div>
+                        <div class="card-value">
+                            ${t.szamlakep ? `<a href="${t.szamlakep}" target="_blank" style="color: #3498db; text-decoration: none; margin-right: 15px;">Számla</a>` : ''}
+                            ${t.garancia_jegy ? `<a href="${t.garancia_jegy}" target="_blank" style="color: #27ae60; text-decoration: none;">Garancia</a>` : ''}
+                        </div>
+                    </div>
+                    ` : ''}
+                    <div class="card-actions">
+                        <button class="btn-primary" onclick="editTermek(${termekek.indexOf(t)})">Szerkeszt</button>
+                        <button class="btn-danger" onclick="deleteTermek(${termekek.indexOf(t)})">Törlés</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateStats() {
+            document.getElementById('totalItems').textContent = termekek.length;
+            document.getElementById('filteredItems').textContent = filteredTermekek.length;
+            
+            const total = termekek.reduce((sum, t) => sum + (parseFloat(t.brutto_osszeg) || 0), 0);
+            document.getElementById('totalValue').textContent = formatAr(total) + ' Ft';
+        }
+
+        function formatAr(value) {
+            const num = parseFloat(value);
+            return isNaN(num) ? '0' : num.toLocaleString('hu-HU');
+        }
+
+        function importCSV() {
+            const file = document.getElementById('fileInput').files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    let csv = e.target.result;
+                    if (csv.charCodeAt(0) === 0xFEFF) csv = csv.substr(1);
+                    
+                    csv = csv.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+                    const lines = csv.split('\n').filter(line => line.trim());
+                    
+                    if (lines.length < 2) {
+                        showNotification('A CSV fájl üres!');
+                        return;
+                    }
+
+                    const headers = parseCSVLine(lines[0]);
+                    const ujTermekek = [];
+for (let i = 1; i < lines.length; i++) {
+                        const values = parseCSVLine(lines[i]);
+                        if (values.length > 0 && values.some(v => v.trim())) {
+                            const item = {};
+                            headers.forEach((header, index) => {
+                                item[header.trim()] = (values[index] || '').trim();
+                            });
+                            ujTermekek.push(item);
+                        }
+                    }
+
+                    const existingKeys = new Set(termekek.map(t => `${t.szamla_szam}|${t.szeriaszam}`));
+                    const uniqueItems = ujTermekek.filter(t => {
+                        const key = `${t.szamla_szam}|${t.szeriaszam}`;
+                        return !existingKeys.has(key);
+                    });
+                    
+                    termekek = termekek.concat(uniqueItems);
+                    filterTermekek();
+                    
+                    const dupCount = ujTermekek.length - uniqueItems.length;
+                    let message = `${uniqueItems.length} termék beolvasva!`;
+                    if (dupCount > 0) message += ` (${dupCount} duplikátum kihagyva)`;
+                    
+                    showNotification(message);
+                    document.getElementById('fileInput').value = '';
+                    switchTab(0);
+                } catch (error) {
+                    showNotification('Hiba: ' + error.message);
+                }
+            };
+            reader.readAsText(file, 'UTF-8');
+        }
+
+        function parseCSVLine(line) {
+            const values = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                const nextChar = line[i + 1];
+                
+                if (char === '"') {
+                    if (inQuotes && nextChar === '"') {
+                        current += '"';
+                        i++;
+                    } else {
+                        inQuotes = !inQuotes;
+                    }
+                } else if (char === ',' && !inQuotes) {
+                    values.push(current.trim());
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            values.push(current.trim());
+            
+            return values.map(v => {
+                v = v.trim();
+                if (v.startsWith('"') && v.endsWith('"')) v = v.slice(1, -1);
+                return v.replace(/""/g, '"');
+            });
+        }
+
+        function exportCSV() {
+            if (termekek.length === 0) {
+                showNotification('Nincs exportálandó adat!');
+                return;
+            }
+
+            const headers = mezok;
+            const csvContent = [
+                headers.join(','),
+                ...termekek.map(t => headers.map(h => {
+                    const value = (t[h] || '').toString();
+                    if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+                        return `"${value.replace(/"/g, '""')}"`;
+                    }
+                    return value;
+                }).join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            const filename = `termekek_${new Date().toISOString().split('T')[0]}.csv`;
+            
+            link.href = url;
+            link.download = filename;
+            link.style.display = 'none';
+            
+            document.body.appendChild(link);
+            link.click();
+            
+            setTimeout(() => {
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            }, 100);
+            
+            showNotification(`CSV exportálva: ${filename}`);
+        }
+
+        function addNewTermek() {
+            const data = {};
+            
+            mezok.forEach(mezo => {
+                const elem = document.getElementById(mezo);
+                data[mezo] = elem ? elem.value.trim() : '';
+            });
+
+            if (!data.szamla_szam || !data.termek_nev || !data.szeriaszam || !data.gyarto) {
+                showNotification('Kötelező mezők: Számla szám, Termék név, Szériaszám, Gyártó');
+                return;
+            }
+
+            const key = `${data.szamla_szam}|${data.szeriaszam}`;
+            const exists = termekek.some(t => `${t.szamla_szam}|${t.szeriaszam}` === key);
+            
+            if (exists) {
+                showNotification('Ez a termék már létezik az adatbázisban!');
+                return;
+            }
+
+            termekek.push(data);
+            filterTermekek();
+            clearForm();
+            showNotification('Termék hozzáadva!');
+            switchTab(0);
+        }
+
+        function generateCSVFromForm() {
+            const data = {};
+            mezok.forEach(mezo => {
+                const elem = document.getElementById(mezo);
+                data[mezo] = elem ? elem.value.trim() : '';
+            });
+
+            if (!data.szamla_szam || !data.termek_nev || !data.szeriaszam) {
+                showNotification('Töltsd ki legalább az alapvető mezőket!');
+                return;
+            }
+
+            const header = mezok.join(',');
+            const row = mezok.map(m => {
+                const value = data[m] || '';
+                if (value.includes(',') || value.includes('"')) {
+                    return `"${value.replace(/"/g, '""')}"`;
+                }
+                return value;
+            }).join(',');
+
+            const csvContent = header + '\n' + row;
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            const filename = `uj_termek_${data.szeriaszam}_${new Date().toISOString().split('T')[0]}.csv`;
+            
+            link.href = url;
+            link.download = filename;
+            link.click();
+            
+            URL.revokeObjectURL(url);
+            showNotification(`CSV letöltve: ${filename}`);
+        }
+
+        function editTermek(index) {
+            const termek = termekek[index];
+            switchTab(1);
+            
+            mezok.forEach(mezo => {
+                const elem = document.getElementById(mezo);
+                if (elem) elem.value = termek[mezo] || '';
+            });
+
+            termekek.splice(index, 1);
+            filterTermekek();
+            
+            showNotification('Szerkesztés alatt... Mentsd el a módosításokat!');
+        }
+
+        function deleteTermek(index) {
+            if (confirm('Biztosan törlöd ezt a terméket?')) {
+                termekek.splice(index, 1);
+                filterTermekek();
+                showNotification('Termék törölve!');
+            }
+        }
+
+        function clearDatabase() {
+            if (termekek.length === 0) {
+                showNotification('Az adatbázis már üres!');
+                return;
+            }
+            
+            if (confirm(`Biztosan törölni szeretnéd az összes adatot? (${termekek.length} termék)`)) {
+                termekek = [];
+                filteredTermekek = [];
+                filterTermekek();
+                showNotification('Adatbázis törölve!');
+            }
+        }
+
+        function clearForm() {
+            mezok.forEach(mezo => {
+                const elem = document.getElementById(mezo);
+                if (elem) {
+                    if (mezo === 'penznem') elem.value = 'HUF';
+                    else if (mezo === 'regisztracio_statusz') elem.value = 'Regisztrálva';
+                    else if (mezo === 'vasarlas_celja') elem.value = 'Használat';
+                    else if (mezo === 'tulajdonjogi_statusz') elem.value = 'Saját tulajdon';
+                    else if (mezo === 'allapot') elem.value = 'Új';
+                    else if (mezo === 'szamla_datum' || mezo === 'garancia_kezdete' || mezo === 'regisztracio_datum') {
+                        elem.value = new Date().toISOString().split('T')[0].replace(/-/g, '.');
+                    }
+                    else elem.value = '';
+                }
+            });
+            showNotification('Űrlap törölve!');
+        }
+
+        function downloadExample(num) {
+            const csvContent = num === 1 ? csvPelda1 : csvPelda2;
+            const filename = num === 1 ? 'makita_szegelynyiro.csv' : 'makita_akku_tolto.csv';
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            
+            link.href = url;
+            link.download = filename;
+            link.click();
+            
+            URL.revokeObjectURL(url);
+            showNotification(`Példa CSV letöltve: ${filename}`);
+        }
+
+        function calculateBrutto() {
+            const netto = parseFloat(document.getElementById('netto_osszeg').value) || 0;
+            const afa = parseFloat(document.getElementById('afa_osszeg').value) || 0;
+            if (netto > 0 && afa > 0) {
+                document.getElementById('brutto_osszeg').value = netto + afa;
+            }
+        }
+
+        function showNotification(message) {
+            const notif = document.getElementById('notification');
+            notif.textContent = message;
+            notif.style.display = 'block';
+            setTimeout(() => {
+                notif.style.display = 'none';
+            }, 3000);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date().toISOString().split('T')[0].replace(/-/g, '.');
+            ['szamla_datum', 'garancia_kezdete', 'regisztracio_datum'].forEach(id => {
+                const elem = document.getElementById(id);
+                if (elem) elem.value = today;
+            });
+
+            filterTermekek();
+        });
+    </script>
+</body>
+</html>
